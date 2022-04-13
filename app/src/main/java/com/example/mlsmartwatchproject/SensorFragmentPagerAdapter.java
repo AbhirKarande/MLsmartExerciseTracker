@@ -30,3 +30,4 @@ public class SensorFragmentPagerAdapter extends FragmentGridPagerAdapter {
     public int getColumnCount(int row) {
         return sensorTypes.length;
     }
+}
