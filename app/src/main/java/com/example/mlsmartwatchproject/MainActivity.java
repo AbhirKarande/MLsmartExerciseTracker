@@ -12,6 +12,9 @@ import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 
+import weka.classifiers.Classifier;
+import weka.core.Attribute;
+
 public class MainActivity extends Activity implements SensorEventListener {
     private static final String TAG = "MainActivity";
     private SensorManager sensorManager;
