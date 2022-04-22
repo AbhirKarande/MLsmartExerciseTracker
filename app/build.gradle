@@ -35,5 +35,6 @@ dependencies {
 
     implementation 'androidx.wear:wear:1.2.0'
     implementation files('lib\\wekaSTRIPPED.jar')
+    implementation "com.google.android.gms:play-services-location:19.0.1"
     compileOnly 'com.google.android.wearable:wearable:2.9.0'
 }
