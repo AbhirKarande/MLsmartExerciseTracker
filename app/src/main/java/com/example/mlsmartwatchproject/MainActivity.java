@@ -28,6 +28,7 @@ import weka.core.Instances;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.SparseInstance;
+import weka.classifiers.trees.J48;
 import static weka.core.SerializationHelper.read;
 
 public class MainActivity extends Activity implements SensorEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -35,6 +36,8 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     public GoogleApiClient mApiClient;
     private SensorManager sensorManager;
     Sensor accelerometer;
+    ArrayList<Float> x = new ArrayList<Float>();
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,18 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         Log.d(TAG, "onCreate: Initializing Sensor Services");
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(MainActivity.this, accelerometer, 10000);
+
+        Classifier cls = null;
+        try {
+            cls = (Classifier) read(getAssets().open("J48ExcerciseRecognition.model"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
 //        Classifier cls = null;
 //        try {
 //            cls = (Classifier) read(getAssets().open("J48ExerciseRecognition.model"));
@@ -91,6 +105,16 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         Log.d(TAG, "onSensorChanged: X: " + sensorEvent.values[0] + " Y: " + sensorEvent.values[1] + " Z: " + sensorEvent.values[2]);
+        x.add(sensorEvent.values[0]);
+
+
+
+
+
 
     }
+
+
+
+
 }
