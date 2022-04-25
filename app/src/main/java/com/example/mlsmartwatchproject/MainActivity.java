@@ -36,8 +36,15 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     public GoogleApiClient mApiClient;
     private SensorManager sensorManager;
     Sensor accelerometer;
-    ArrayList<Float> x = new ArrayList<Float>();
-
+//    ArrayList<Float> x = new ArrayList<Float>();
+    private final int window_size = 4;
+    private final int features_selected = 4;
+    private float[] x = new float[window_size*3];
+    private int index = 0;
+    private boolean full = false;
+    private String[][] data = new String[2][features_selected+1];
+    private String[] features = {"mean_x","median_x","median_y","median_z","label"};
+    private Classifier cls = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,16 +61,14 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(MainActivity.this, accelerometer, 10000);
 
-        Classifier cls = null;
         try {
             cls = (Classifier) read(getAssets().open("J48ExcerciseRecognition.model"));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
-
+        
+        data[0] = features;
+        
 //        Classifier cls = null;
 //        try {
 //            cls = (Classifier) read(getAssets().open("J48ExerciseRecognition.model"));
@@ -105,13 +110,40 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         Log.d(TAG, "onSensorChanged: X: " + sensorEvent.values[0] + " Y: " + sensorEvent.values[1] + " Z: " + sensorEvent.values[2]);
-        x.add(sensorEvent.values[0]);
-
-
-
-
-
-
+//        x.add(sensorEvent.values[0]);
+        if(index == window_size-1)
+        	full = true;
+        x[index*3] = sensorEvent.values[0];
+        x[index*3+1] = sensorEvent.values[1];
+        x[index*3+2] = sensorEvent.values[2];
+        index++;
+        if(full) {
+        	data[1][0] = String.valueOf((x[0]+x[3]+x[6]+x[9])/4);
+        	data[1][1] = String.valueOf(findMedian(0));
+        	data[1][2] = String.valueOf(findMedian(1));
+        	data[1][3] = String.valueOf(findMedian(2));
+        	data[1][4] = "?";
+        }
+        String arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2,3});
+        StringReader strReader = new StringReader(arffData);
+		Instances unlabeled = new Instances(strReader);
+		unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
+		double clsLabel = cls.classifyInstance(unlabeled.instance(0));
+		Log.d(clsLabel);
+    }
+    
+    private float findMedian(int i) {
+    	float maxNum = x[i];
+    	float minNum = x[i];
+    	float sum = x[i];
+    	for(int j = 3; j <= 9; j += 3) {
+	    	if(x[i+j]<minNum)
+	    		minNum = x[i+j];
+	    	if(x[i+j]>maxNum)
+	    		maxNum = x[i+j];
+	    	sum += x[i+j];
+    	}
+    	return (sum-maxNum-minNum)/2;
     }
 
 
