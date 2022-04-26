@@ -13,6 +13,7 @@ import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.content.Intent;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -87,7 +88,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
 //            Toast.makeText()
 //        }
         Log.d(TAG, "onCreate: Registered accelerometer listener");
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
@@ -161,7 +162,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             data[1][0] = String.valueOf(mean);  //mean_x
             data[1][1] = String.valueOf(rms);
             data[1][2] = String.valueOf(rms1);
-            data[1][2] = "?";
+            data[1][3] = "?";
             String arffData = null;
             try {
                 arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2});
@@ -176,6 +177,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
                 e.printStackTrace();
             }
             unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
+
             double probs = 0.0;
 
             try {
