@@ -72,9 +72,6 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             e.printStackTrace();
         }
         
-        
-        data[0] = features;
-        
 //        Classifier cls = null;
 //        try {
 //            cls = (Classifier) read(getAssets().open("J48ExerciseRecognition.model"));
@@ -155,7 +152,8 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         	
         	// model 2
         	data = new String[2][3+1];
-        	features = {"mean_x","rms_x","rms_y"};
+        	features = {"mean_x","rms_x","rms_y","label"};
+            data[0] = features;
         	data[1][0] = String.valueOf(mean);  //mean_x
         	data[1][1] = String.valueOf(rms);	
         	data[1][2] = String.valueOf(rms1);
@@ -186,7 +184,8 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             
             // model 1
             data = new String[2][3+1];
-        	features = {"mean_x","std_x","rms_y"};
+        	features = {"mean_x","std_x","rms_y","label"};
+            data[0] = features;
         	data[1][0] = String.valueOf(sum/100/window_size);
         	data[1][1] = String.valueOf(std);
         	data[1][2] = String.valueOf(rms1);
@@ -217,7 +216,8 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             
             // model 0
             data = new String[2][2+1];
-        	features = {"median_y","mean_z"};
+        	features = {"median_y","mean_z","label"};
+            data[0] = features;
         	data[1][0] = String.valueOf(m1);
         	data[1][1] = String.valueOf(mean2);
         	data[1][2] = "?";
@@ -247,7 +247,8 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             
             // model 3
             data = new String[2][3+1];
-        	features = {"mean_x","rms_y","median_z"};
+        	features = {"mean_x","rms_y","median_z","label"};
+            data[0] = features;
         	data[1][0] = String.valueOf(mean);
         	data[1][1] = String.valueOf(rms1);
         	data[1][2] = String.valueOf(m2);
