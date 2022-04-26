@@ -294,27 +294,6 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             if(max_probs < 0.5) {
                 label = "not_exercising";
             }
-            strReader = new StringReader(arffData);
-            unlabeled = null;
-            try {
-                unlabeled = new Instances(strReader);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
-            try {
-//                double[] p4 = cls3.distributionForInstance(unlabeled.instance(0));
-//                for(double d:p4){
-//                    Log.d(TAG, String.valueOf(d));
-//                }
-                probs = cls3.distributionForInstance(unlabeled.instance(0))[1];
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if(probs > max_probs) {
-                max_probs = probs;
-                label = "Not_Exercising";
-            }
             
             // one model with multiple classes
 //            data = new String[2][3+1];
