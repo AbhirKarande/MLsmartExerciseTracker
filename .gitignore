@@ -12,3 +12,7 @@
 /captures
 .externalNativeBuild
 .cxx
+.classpath
+.idea/compiler.xml
+.project
+bin/
