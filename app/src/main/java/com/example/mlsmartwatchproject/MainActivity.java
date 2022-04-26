@@ -13,6 +13,8 @@ import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.content.Intent;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -48,18 +50,20 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     private String[][] data = new String[2][features_selected+1];
     private String[] features = {"mean_x","median_x","median_y","median_z","label"};
     private Classifier cls = null;
+    TextView clsification;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mApiClient = new GoogleApiClient.Builder(MainActivity.this)
-                .addApi(ActivityRecognition.API)
-                .addConnectionCallbacks(MainActivity.this)
-                .addOnConnectionFailedListener(MainActivity.this)
-                .build();
-        mApiClient.connect();
+//        mApiClient = new GoogleApiClient.Builder(MainActivity.this)
+//                .addApi(ActivityRecognition.API)
+//                .addConnectionCallbacks(MainActivity.this)
+//                .addOnConnectionFailedListener(MainActivity.this)
+//                .build();
+//        mApiClient.connect();
         Log.d(TAG, "onCreate: Initializing Sensor Services");
+        clsification = (TextView) findViewById(R.id.clsification);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(MainActivity.this, accelerometer, 10000);
@@ -90,7 +94,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     public void onConnected(@Nullable Bundle bundle) {
         Intent intent = new Intent(MainActivity.this, ActivityRecognizedService.class);
         PendingIntent pendingIntent = PendingIntent.getService(MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 2000, pendingIntent);
+        //ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 2000, pendingIntent);
     }
 
     @Override
@@ -120,8 +124,12 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         x[index*3+1] = sensorEvent.values[1];
         x[index*3+2] = sensorEvent.values[2];
         index = (index+1)%(window_size*100);
-        if(full&&index%100 == 1) {
-        	data[1][0] = String.valueOf((x[0]+x[3]+x[6]+x[9])/4);
+        if(full&&index%20 == 1) {
+            float sum = 0;
+            for(int i =0; i< 400; i++){
+                sum += x[i*3];
+            }
+        	data[1][0] = String.valueOf(sum/400);
         	data[1][1] = String.valueOf(findMedian(0));
         	data[1][2] = String.valueOf(findMedian(1));
         	data[1][3] = String.valueOf(findMedian(2));
@@ -140,13 +148,15 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
                 e.printStackTrace();
             }
             unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
-            double clsLabel = 0;
+            double clsLabel = 4;
             try {
                 clsLabel = cls.classifyInstance(unlabeled.instance(0));
             } catch (Exception e) {
                 e.printStackTrace();
             }
             Log.d(TAG, "Classification: " + clsLabel);
+            clsification.setText("You are: " + clsLabel);
+
         }
     }
     
