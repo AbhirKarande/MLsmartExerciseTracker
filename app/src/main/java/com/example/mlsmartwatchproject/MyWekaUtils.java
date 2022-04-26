@@ -1,4 +1,4 @@
-package com.example.mlsmartwatchproject;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -85,6 +85,7 @@ public class MyWekaUtils {
         attributeList[i] = csvData[0][total_cols - 1];
 
         String[] classList = new String[1];
+
         classList = new String[]{"a","b","c","d"};
         StringBuilder sb = getArffHeader(attributeList, classList);
 
