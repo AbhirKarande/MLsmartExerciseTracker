@@ -120,8 +120,13 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         x[index*3+1] = sensorEvent.values[1];
         x[index*3+2] = sensorEvent.values[2];
         index = (index+1)%(window_size*100);
+        
         if(full&&index%100 == 1) {
-        	data[1][0] = String.valueOf((x[0]+x[3]+x[6]+x[9])/4);
+        	float sum = 0;
+        	for(int i = 0; i < window_size*100; i++) {
+        		sum += x[i*3];
+        	}
+        	data[1][0] = String.valueOf(sum/100/window_size);
         	data[1][1] = String.valueOf(findMedian(0));
         	data[1][2] = String.valueOf(findMedian(1));
         	data[1][3] = String.valueOf(findMedian(2));
@@ -140,7 +145,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
                 e.printStackTrace();
             }
             unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
-            double clsLabel = 0;
+            double clsLabel;
             try {
                 clsLabel = cls.classifyInstance(unlabeled.instance(0));
             } catch (Exception e) {
@@ -152,8 +157,8 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     
     private float findMedian(int i) {
 		PriorityQueue<Float> p = new PriorityQueue<>();
-		for(int j = 0; j < 400; j++) {
-			if(p.size()==201) {
+		for(int j = 0; j < 100*window_size; j++) {
+			if(p.size()==50*window_size+1) {
 				p.poll();
 			}
 			p.add(x[i+j*3]);
