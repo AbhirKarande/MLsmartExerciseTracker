@@ -13,6 +13,7 @@ import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.content.Intent;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -87,6 +88,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
 //            Toast.makeText()
 //        }
         Log.d(TAG, "onCreate: Registered accelerometer listener");
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     }
 
@@ -270,40 +272,39 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             }
 
             // model 3
-            data = new String[2][3+1];
-            features = new String[]{"mean_x", "median_z","rms_y", "label"};
-            data[0] = features;
-            data[1][0] = String.valueOf(mean);
-            data[1][1] = String.valueOf(m2);
-            data[1][2] = String.valueOf(rms1);
-            data[1][3] = "?";
-            arffData = null;
-            try {
-                arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2});
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            strReader = new StringReader(arffData);
-            unlabeled = null;
-            try {
-                unlabeled = new Instances(strReader);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
-            try {
-//                double[] p3 = cls.distributionForInstance(unlabeled.instance(0));
-//                for(double d:p3){
-//                    Log.d(TAG, String.valueOf(d));
-//                }
-
-                probs = cls.distributionForInstance(unlabeled.instance(0))[1];
-                Log.d(TAG, "not_exercising" + String.valueOf(probs));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if(probs > max_probs) {
-                max_probs = probs;
+//            data = new String[2][3+1];
+//            features = new String[]{"mean_x", "median_z","rms_y", "label"};
+//            data[0] = features;
+//            data[1][0] = String.valueOf(mean);
+//            data[1][1] = String.valueOf(m2);
+//            data[1][2] = String.valueOf(rms1);
+//            data[1][3] = "?";
+//            arffData = null;
+//            try {
+//                arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2});
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            strReader = new StringReader(arffData);
+//            unlabeled = null;
+//            try {
+//                unlabeled = new Instances(strReader);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
+//            try {
+////                double[] p3 = cls.distributionForInstance(unlabeled.instance(0));
+////                for(double d:p3){
+////                    Log.d(TAG, String.valueOf(d));
+////                }
+//
+//                probs = cls.distributionForInstance(unlabeled.instance(0))[1];
+//                Log.d(TAG, "not_exercising" + String.valueOf(probs));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+            if(max_probs < 0.5) {
                 label = "not_exercising";
             }
             Log.d(TAG, "Classification: " + label);
