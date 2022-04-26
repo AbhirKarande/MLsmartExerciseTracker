@@ -41,12 +41,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     Sensor accelerometer;
 //    ArrayList<Float> x = new ArrayList<Float>();
     private final int window_size = 4;
-    private final int features_selected = 4;
     private float[] x = new float[window_size*300];
     private int index = 0;
     private boolean full = false;
-    private String[][] data = new String[2][features_selected+1];
-    private String[] features = {"mean_x","median_x","median_y","median_z","label"};
+    private String[][] data;
+    private String[] features;
     private Classifier cls = null;
 
     @Override
@@ -65,10 +64,14 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         sensorManager.registerListener(MainActivity.this, accelerometer, 10000);
 
         try {
-            cls = (Classifier) read(getAssets().open("J48ExcerciseRecognition.model"));
+        	cls = (Classifier) read(getAssets().open("J48ExerciseBenchPress4.model"));
+            cls1 = (Classifier) read(getAssets().open("J48ExerciseBicepCurl4.model"));
+            cls2 = (Classifier) read(getAssets().open("J48ExerciseLateralRaise4.model"));
+            cls3 = (Classifier) read(getAssets().open("J48ExerciseNotExercising.model"));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
         
         data[0] = features;
         
@@ -122,15 +125,133 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         index = (index+1)%(window_size*100);
         
         if(full&&index%100 == 1) {
-        	float sum = 0;
+        	float mean = 0;
+        	float mean2 = 0;
+        	float rms1 = 0;
+        	float rms = 0;
+        	float std = 0;
         	for(int i = 0; i < window_size*100; i++) {
-        		sum += x[i*3];
+        		mean += x[i*3];
+        		mean2 += x[i*3+2];
+        		rms += x[i*3]*x[i*3];
+        		rms1 += x[i*3+1]*x[i*3+1];
         	}
+        	mean /= (100*window_size);
+        	mean2 /= (100*window_size);
+        	rms /= (100*window_size);
+        	rms = Math.sqrt(rms);
+        	rms1 /= (100*window_size);
+        	rms1 = Math.sqrt(rms1);
+        	for(int i = 0; i < window_size*100; i++) {
+        		std += (x[i*3]-mean)*(x[i*3]-mean)
+        	}
+        	std /= (100*window_size);
+        	std = Math.sqrt(std);
+//        	float m0 = findMedian(0);
+        	float m1 = findMedian(1);
+        	float m2 = findMedian(2);
+        	double max_probs;
+        	String label = "";
+        	
+        	// model 2
+        	data = new String[2][3+1];
+        	features = {"mean_x","rms_x","rms_y"};
+        	data[1][0] = String.valueOf(mean);  //mean_x
+        	data[1][1] = String.valueOf(rms);	
+        	data[1][2] = String.valueOf(rms1);
+        	data[1][3] = "?";
+            String arffData = null;
+            try {
+                arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            StringReader strReader = new StringReader(arffData);
+            Instances unlabeled = null;
+            try {
+                unlabeled = new Instances(strReader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
+            try {
+            	double probs = cls2.distributionForInstance(unlabeled.instance(0))[1]
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(probs > max_probs) {
+            	max_probs = probs;
+            	label = "Lateral_Raise";
+            }
+            
+            // model 1
+            data = new String[2][3+1];
+        	features = {"mean_x","std_x","rms_y"};
         	data[1][0] = String.valueOf(sum/100/window_size);
-        	data[1][1] = String.valueOf(findMedian(0));
-        	data[1][2] = String.valueOf(findMedian(1));
-        	data[1][3] = String.valueOf(findMedian(2));
-        	data[1][4] = "?";
+        	data[1][1] = String.valueOf(std);
+        	data[1][2] = String.valueOf(rms1);
+        	data[1][3] = "?";
+            String arffData = null;
+            try {
+                arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            StringReader strReader = new StringReader(arffData);
+            Instances unlabeled = null;
+            try {
+                unlabeled = new Instances(strReader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
+            try {
+            	double probs = cls1.distributionForInstance(unlabeled.instance(0))[1]
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(probs > max_probs) {
+            	max_probs = probs;
+            	label = "Bicep_Curl";
+            }
+            
+            // model 0
+            data = new String[2][2+1];
+        	features = {"median_y","mean_z"};
+        	data[1][0] = String.valueOf(m1);
+        	data[1][1] = String.valueOf(mean2);
+        	data[1][2] = "?";
+            String arffData = null;
+            try {
+                arffData = MyWekaUtils.csvToArff(data, new int[]{0,1});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            StringReader strReader = new StringReader(arffData);
+            Instances unlabeled = null;
+            try {
+                unlabeled = new Instances(strReader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
+            try {
+            	double probs = cls.distributionForInstance(unlabeled.instance(0))[0]
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(probs > max_probs) {
+            	max_probs = probs;
+            	label = "Bench_Press";
+            }
+            
+            // model 3
+            data = new String[2][3+1];
+        	features = {"mean_x","rms_y","median_z"};
+        	data[1][0] = String.valueOf(mean);
+        	data[1][1] = String.valueOf(rms1);
+        	data[1][2] = String.valueOf(m2);
+        	data[1][3] = "?";
             String arffData = null;
             try {
                 arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2,3});
@@ -145,13 +266,17 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
                 e.printStackTrace();
             }
             unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
-            double clsLabel;
             try {
-                clsLabel = cls.classifyInstance(unlabeled.instance(0));
+            	double probs = cls3.distributionForInstance(unlabeled.instance(0))[1]
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Log.d(TAG, "Classification: " + clsLabel);
+            if(probs > max_probs) {
+            	max_probs = probs;
+            	label = "Not_Exercising";
+            }
+            
+            Log.d(TAG, "Classification: " + label);
         }
     }
     

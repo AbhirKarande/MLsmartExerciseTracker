@@ -86,7 +86,7 @@ public class MyWekaUtils {
 
         String[] classList = new String[1];
 
-        classList = new String[]{"a","b","c","d"};
+        classList = new String[]{"a","b"};
         StringBuilder sb = getArffHeader(attributeList, classList);
 
         for (i = 1; i < total_rows; i++) {
