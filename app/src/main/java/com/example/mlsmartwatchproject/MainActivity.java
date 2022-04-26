@@ -161,8 +161,10 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             features = new String[]{"mean_x", "rms_y","rms_x","label"};
             data[0] = features;
             data[1][0] = String.valueOf(mean);  //mean_x
+
             data[1][1] = String.valueOf(rms1);
             data[1][2] = String.valueOf(rms);
+
             data[1][3] = "?";
             String arffData = null;
             try {
@@ -178,6 +180,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
                 e.printStackTrace();
             }
             unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
+
             double probs = 0.0;
 
             try {
