@@ -1,4 +1,4 @@
-
+package com.example.mlsmartwatchproject;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -20,30 +20,30 @@ import weka.core.Instances;
 public class MyWekaUtils {
 
     public static double classify(String arffData, int option) throws Exception {
-		StringReader strReader = new StringReader(arffData);
-		Instances instances = new Instances(strReader);
-		strReader.close();
-		instances.setClassIndex(instances.numAttributes() - 1);
-		
-		Classifier classifier;
-		if(option==1)
-			classifier = new J48(); // Decision Tree classifier
-		else if(option==2)			
-			classifier = new RandomForest();
-		else if(option == 3)
-			classifier = new SMO();  //This is a SVM classifier
-		else 
-			return -1;
-		
-		classifier.buildClassifier(instances); // build classifier
-		
-		Evaluation eval = new Evaluation(instances);
-		eval.crossValidateModel(classifier, instances, 10, new Random(1), new Object[] { });
-		
-		return eval.pctCorrect();
-	}
-    
-    
+        StringReader strReader = new StringReader(arffData);
+        Instances instances = new Instances(strReader);
+        strReader.close();
+        instances.setClassIndex(instances.numAttributes() - 1);
+
+        Classifier classifier;
+        if(option==1)
+            classifier = new J48(); // Decision Tree classifier
+        else if(option==2)
+            classifier = new RandomForest();
+        else if(option == 3)
+            classifier = new SMO();  //This is a SVM classifier
+        else
+            return -1;
+
+        classifier.buildClassifier(instances); // build classifier
+
+        Evaluation eval = new Evaluation(instances);
+        eval.crossValidateModel(classifier, instances, 10, new Random(1), new Object[] { });
+
+        return eval.pctCorrect();
+    }
+
+
     public static String[][] readCSV(String filePath) throws Exception {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(new FileReader(filePath));
@@ -65,10 +65,10 @@ public class MyWekaUtils {
         String[][] csvData = new String[lineCount][];
         String[] vals;
         int i, j;
-        for (i = 0; i < lineCount; i++) {            
-                csvData[i] = lines.get(i).split(",");            
+        for (i = 0; i < lineCount; i++) {
+            csvData[i] = lines.get(i).split(",");
         }
-        
+
         return csvData;
 
     }
@@ -93,7 +93,7 @@ public class MyWekaUtils {
             for (j = 0; j < fCount; j++) {
                 sb.append(csvData[i][featureIndices[j]]);
                 sb.append(",");
-            }            
+            }
             sb.append(csvData[i][total_cols - 1]);
             sb.append("\n");
         }
