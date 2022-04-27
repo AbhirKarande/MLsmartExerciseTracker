@@ -26,6 +26,20 @@
             android:id="@+id/classification"
             android:layout_marginTop="30sp"
             android:textSize="28dp"/>
+	<ToggleButton 
+    	    android:id="@+id/togglebutton"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:textOn="Stop"
+	    android:textOff="Start"
+    	    android:onClick="onToggleClicked" />
+
+	<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    	    android:id="@+id/button_send"
+    	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"
+  	    android:text="Reset"
+   	    android:onClick="sendMessage" />
 <!--        <TextView-->
 <!--            android:layout_width="wrap_content"-->
 <!--            android:layout_height="wrap_content"-->
