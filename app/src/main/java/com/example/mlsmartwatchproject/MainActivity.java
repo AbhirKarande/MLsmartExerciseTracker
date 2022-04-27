@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     private SensorManager sensorManager;
     Sensor accelerometer;
     //    ArrayList<Float> x = new ArrayList<Float>();
-    private final int window_size = 4;
+    private final int window_size = 3;
     private float[] x = new float[window_size*300];
     private int index = 0;
     private boolean full = false;
@@ -70,9 +70,9 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         sensorManager.registerListener(MainActivity.this, accelerometer, 10000);
         classification = (TextView) findViewById(R.id.classification);
         try {
-            cls = (Classifier) read(getAssets().open("J48ExerciseBenchPress4.model"));
-            cls1 = (Classifier) read(getAssets().open("J48ExerciseBicepCurl4.model"));
-            cls2 = (Classifier) read(getAssets().open("J48ExerciseLateralRaise4.model"));
+            cls = (Classifier) read(getAssets().open("J48BenchPress3.model"));
+            cls1 = (Classifier) read(getAssets().open("J48BicepCurl3.model"));
+            cls2 = (Classifier) read(getAssets().open("J48LateralRaise3.model"));
            // cls3 = (Classifier) read(getAssets().open("J48ExerciseNotExercising4.model"));
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,16 +130,19 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         if(full&&index%100 == 0) {
             float mean = 0;
             float mean2 = 0;
+            float mean1 = 0;
             float rms1 = 0;
             float rms = 0;
             float std = 0;
             for(int i = 0; i < window_size*100; i++) {
                 mean += x[i*3];
+                mean1 += x[i*3+1];
                 mean2 += x[i*3+2];
                 rms += x[i*3]*x[i*3];
                 rms1 += x[i*3+1]*x[i*3+1];
             }
             mean /= (100*window_size);
+            mean1 /= (100*window_size);
             mean2 /= (100*window_size);
             rms /= (100*window_size);
             rms = (float) Math.sqrt(rms);
@@ -158,12 +161,12 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
 
             // model 2
             data = new String[2][3+1];
-            features = new String[]{"mean_x", "rms_y","rms_x","label"};
+            features = new String[]{"mean_x", "mean_y","std_x","label"};
             data[0] = features;
             data[1][0] = String.valueOf(mean);  //mean_x
 
-            data[1][1] = String.valueOf(rms1);
-            data[1][2] = String.valueOf(rms);
+            data[1][1] = String.valueOf(mean1);
+            data[1][2] = String.valueOf(std);
 
             data[1][3] = "?";
             String arffData = null;
@@ -201,10 +204,10 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
 
             // model 1
             data = new String[2][3+1];
-            features = new String[]{"rms_y","std_x", "mean_x","label"};
+            features = new String[]{"std_x","rms_y", "mean_x","label"};
             data[0] = features;
-            data[1][0] = String.valueOf(rms1);
-            data[1][1] = String.valueOf(std);
+            data[1][0] = String.valueOf(std);
+            data[1][1] = String.valueOf(rms1);
             data[1][2] = String.valueOf(mean);
             data[1][3] = "?";
             arffData = null;
