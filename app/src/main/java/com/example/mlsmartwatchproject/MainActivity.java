@@ -73,7 +73,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             cls = (Classifier) read(getAssets().open("J48ExerciseBenchPress4.model"));
             cls1 = (Classifier) read(getAssets().open("J48ExerciseBicepCurl4.model"));
             cls2 = (Classifier) read(getAssets().open("J48ExerciseLateralRaise4.model"));
-            cls3 = (Classifier) read(getAssets().open("J48ExerciseNotExercising4.model"));
+           // cls3 = (Classifier) read(getAssets().open("J48ExerciseNotExercising4.model"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -128,7 +128,6 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         index = (index+1)%(window_size*100);
         //Log.d(TAG, "output" + index);
         if(full&&index%100 == 0) {
-        	// multiple models
             float mean = 0;
             float mean2 = 0;
             float rms1 = 0;
@@ -162,8 +161,10 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             features = new String[]{"mean_x", "rms_y","rms_x","label"};
             data[0] = features;
             data[1][0] = String.valueOf(mean);  //mean_x
+
             data[1][1] = String.valueOf(rms1);
             data[1][2] = String.valueOf(rms);
+
             data[1][3] = "?";
             String arffData = null;
             try {
@@ -183,6 +184,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             double probs = 0.0;
 
             try {
+//                double[] p = cls2.distributionForInstance(unlabeled.instance(0));
+//                for(double d:p){
+//                    Log.d(TAG, String.valueOf(d));
+//                }
+
                 probs = cls2.distributionForInstance(unlabeled.instance(0))[1];
                 Log.d(TAG, "lat" + String.valueOf(probs));
             } catch (Exception e) {
@@ -190,7 +196,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             }
             if(probs > max_probs) {
                 max_probs = probs;
-                label = "Lateral_Raise";
+                label = "Lateral Raise";
             }
 
             // model 1
@@ -216,6 +222,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             }
             unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
             try {
+//                double[] p1 = cls1.distributionForInstance(unlabeled.instance(0));
+//                for(double d:p1){
+//                    Log.d(TAG, String.valueOf(d));
+//                }
+
                 probs = cls1.distributionForInstance(unlabeled.instance(0))[1];
                 Log.d(TAG, "Bicep" + String.valueOf(probs));
             } catch (Exception e) {
@@ -223,7 +234,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             }
             if(probs > max_probs) {
                 max_probs = probs;
-                label = "Bicep_Curl";
+                label = "Bicep Curl";
             }
 
             // model 0
@@ -248,6 +259,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             }
             unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
             try {
+//                double[] p3 = cls.distributionForInstance(unlabeled.instance(0));
+//                for(double d:p3){
+//                    Log.d(TAG, String.valueOf(d));
+//                }
+
                 probs = cls.distributionForInstance(unlabeled.instance(0))[0];
                 Log.d(TAG, "BenchPress" + String.valueOf(probs));
             } catch (Exception e) {
@@ -255,7 +271,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             }
             if(probs > max_probs) {
                 max_probs = probs;
-                label = "Bench_Press";
+                label = "Bench Press";
             }
 
             // model 3
@@ -292,43 +308,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
 //                e.printStackTrace();
 //            }
             if(max_probs < 0.5) {
-                label = "not_exercising";
+                label = "Not Exercising";
             }
-            
-            // one model with multiple classes
-//            data = new String[2][3+1];
-//            features = new String[]{"mean_x", "rms_x","rms_y","label"};
-//            data[0] = features;
-//            data[1][0] = String.valueOf(mean);  //mean_x
-//            data[1][1] = String.valueOf(rms);
-//            data[1][2] = String.valueOf(rms1);
-//            data[1][3] = "?";
-//            String arffData = null;
-//            try {
-//                arffData = MyWekaUtils.csvToArff(data, new int[]{0,1,2});
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            StringReader strReader = new StringReader(arffData);
-//            Instances unlabeled = null;
-//            try {
-//                unlabeled = new Instances(strReader);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            unlabeled.setClassIndex(unlabeled.numAttributes() - 1);
-//            double clsLabel;
-//
-//            try {
-//                clsLabel = cls_mul.classifyInstance(unlabeled.instance(0));
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-            
+            Log.d(TAG, "Classification: " + label);
 
-            Log.d(TAG, "Classification: " + label); // for multiple models
-//            Log.d(TAG, "Classification: " + unlabeled.classAttribute().value((int) clsLabel)); // for single model with multiple classes
-            classification.setText("You are:" + label);
+            classification.setText(label);
 
         }
     }
