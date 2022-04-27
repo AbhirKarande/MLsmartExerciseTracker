@@ -13,8 +13,12 @@ import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.content.Intent;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,6 +62,10 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
     private int time_bench = 0;
     private int time_lateral = 0;
     private int time_not = 0;
+    TextView time0;
+    TextView time1;
+    TextView time2;
+    TextView time3;
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -74,6 +82,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(MainActivity.this, accelerometer, 10000);
         classification = (TextView) findViewById(R.id.classification);
+        time0 = (TextView) findViewById(R.id.time0);
+        time1 = (TextView) findViewById(R.id.time1);
+        time2 = (TextView) findViewById(R.id.time2);
+        time3 = (TextView) findViewById(R.id.time3);
+
         try {
             cls = (Classifier) read(getAssets().open("J48BenchPress3.model"));
             cls1 = (Classifier) read(getAssets().open("J48BicepCurl3.model"));
@@ -105,6 +118,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
                 time_bench = 0;
                 time_lateral = 0;
                 time_not = 0;
+				time0.setText("Bench Press: " + String.valueOf(time_bench) + "s");
+				time1.setText("Bicep Curl: " + String.valueOf(time_bicep) + "s");
+				time2.setText("Lateral Raise: " + String.valueOf(time_lateral) + "s");
+				time3.setText("Not Exercising: " + String.valueOf(time_not) + "s");
+				classification.setText("Not Exercising");
             }
         });
         
@@ -113,10 +131,13 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     // The toggle is enabled
-                	started  = true;
+                	full = false;
+                	index = 0;
+                    started  = true;
                 } else {
                     // The toggle is disabled
                 	started = false;
+                	classification.setText("Not Exercising");
                 }
             }
         });
@@ -350,6 +371,7 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
 	            switch(label) {
 	            	case "Bench Press":
 	            		time_bench++;
+
 	            		break;
 	            	case "Bicep Curl":
 	            		time_bicep++;
@@ -361,6 +383,11 @@ public class MainActivity extends Activity implements SensorEventListener, Googl
 	            }
 	
 	            classification.setText(label);
+                time0.setText("Bench Press: " + String.valueOf(time_bench) + "s");
+                time1.setText("Bicep Curl: " + String.valueOf(time_bicep) + "s");
+                time2.setText("Lateral Raise: " + String.valueOf(time_lateral) + "s");
+                time3.setText("Not Exercising: " + String.valueOf(time_not) + "s");
+
 	        }
 
         }
